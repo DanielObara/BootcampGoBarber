@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import * as Yup from 'yup';
 import authConfig from '../../config/auth';
 import User from '../models/User';
-import File from '../models/File';
 
 class SessionController {
   async store(req, res) {
@@ -21,13 +20,6 @@ class SessionController {
 
     const user = await User.findOne({
       where: { email }
-      // include: [
-      //   {
-      //     model: File,
-      //     as: 'avatar',
-      //     attributes: ['path', 'url', 'id']
-      //   }
-      // ]
     });
 
     if (!user || !(await user.checkPassword(password))) {
