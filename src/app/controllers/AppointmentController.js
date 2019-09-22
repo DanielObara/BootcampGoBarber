@@ -73,25 +73,30 @@ class AppointmentController {
       return res.status(400).json({ error: 'Past dates are not permitted' });
     }
 
-    // const checkAvailability = await Appointment.findOne({
-    //   where: {
-    //     provider_id,
-    //     canceled_at: null,
-    //     date: hourStart
-    //   }
-    // });
-
-    // if (checkAvailability) {
-    //   return res
-    //     .status(400)
-    //     .json({ error: 'Appointment date is not available' });
-    // }
-
-    const appointment = await Appointment.create({
-      user_id: req.userId,
-      provider_id,
-      date
+    const checkAvailability = await Appointment.findOne({
+      where: {
+        provider_id,
+        canceled_at: null,
+        date
+      }
     });
+
+    if (checkAvailability) {
+      return res
+        .status(400)
+        .json({ error: 'Appointment date is not available' });
+    }
+    try {
+      const appointment = await Appointment.create({
+        user_id: req.userId,
+        provider_id,
+        date
+      });
+
+      return res.json(appointment);
+    } catch (error) {
+      return res.status(400).json({ error: 'Erro ao criar' });
+    }
 
     // const user = await User.findByPk(req.userId);
     // const formattedDate = format(hourStart, "dd 'de' MMMM, 'às' H:mm'h'", {
@@ -102,8 +107,6 @@ class AppointmentController {
     //   content: `Novo agendamento de ${user.name} para dia ${formattedDate}`,
     //   user: provider_id
     // });
-
-    return res.json(appointment);
   }
 
   async delete(req, res) {
