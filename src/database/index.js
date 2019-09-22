@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import mongoose from 'mongoose';
 
 // Import dos models
 import User from '../app/models/User';
@@ -14,6 +15,8 @@ const models = [User, File, Appointment];
 class Database {
   constructor() {
     this.init();
+
+    this.mongo();
   }
 
   // Responsável por fazer a conexão com o banco e carregar os models
@@ -29,12 +32,12 @@ class Database {
       .map(model => model.associate && model.associate(this.connection.models));
   }
 
-  // mongo() {
-  //   this.mongoConnection = mongoose.connect(
-  //     'mongodb://localhost:27017/meetapp',
-  //     { useNewUrlParser: true, useFindAndModify: true }
-  //   );
-  // }
+  mongo() {
+    this.mongoConnection = mongoose.connect(
+      'mongodb://localhost:27017/gobarber',
+      { useNewUrlParser: true, useFindAndModify: true }
+    );
+  }
 }
 
 export default new Database();

@@ -4,7 +4,7 @@ import pt from 'date-fns/locale/pt-BR';
 import User from '../models/User';
 import File from '../models/File';
 import Appointment from '../models/Appointment';
-// import Notification from '../schemas/Notification';
+import Notification from '../schemas/Notification';
 
 // import CancellationMail from '../jobs/CancellationMail';
 // import Queue from '../../lib/Queue';
@@ -86,6 +86,18 @@ class AppointmentController {
         .status(400)
         .json({ error: 'Appointment date is not available' });
     }
+
+    const user = await User.findByPk(req.userId);
+
+    const formattedDate = format(hourStart, "dd 'de' MMMM, 'às' H:mm'h'", {
+      locale: pt
+    });
+
+    await Notification.create({
+      content: `Novo agendamento de ${user.name} para dia ${formattedDate}`,
+      user: provider_id
+    });
+
     try {
       const appointment = await Appointment.create({
         user_id: req.userId,
@@ -95,18 +107,11 @@ class AppointmentController {
 
       return res.json(appointment);
     } catch (error) {
-      return res.status(400).json({ error: 'Erro ao criar' });
+      return res.status(400).json({
+        error:
+          'Oops... Something is wrong. Does not possible create your appointment'
+      });
     }
-
-    // const user = await User.findByPk(req.userId);
-    // const formattedDate = format(hourStart, "dd 'de' MMMM, 'às' H:mm'h'", {
-    //   locale: pt
-    // });
-
-    // await Notification.create({
-    //   content: `Novo agendamento de ${user.name} para dia ${formattedDate}`,
-    //   user: provider_id
-    // });
   }
 
   async delete(req, res) {
