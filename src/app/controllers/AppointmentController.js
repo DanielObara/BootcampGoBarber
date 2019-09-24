@@ -6,8 +6,8 @@ import File from '../models/File';
 import Appointment from '../models/Appointment';
 import Notification from '../schemas/Notification';
 
-// import CancellationMail from '../jobs/CancellationMail';
-// import Queue from '../../lib/Queue';
+import CancellationMail from '../jobs/CancellationMail';
+import Queue from '../../lib/Queue';
 
 class AppointmentController {
   async index(req, res) {
@@ -142,8 +142,10 @@ class AppointmentController {
       });
     }
 
+    // subHours reduz um numero de horas.
     const dateWithSub = subHours(appointment.date, 2);
 
+    // Verifica se este horário subtraído já passou do horário atual
     if (isBefore(dateWithSub, new Date())) {
       return res.status(401).json({
         error: 'You can only cancel appointments 2 hours in advance.'
@@ -154,9 +156,9 @@ class AppointmentController {
 
     await appointment.save();
 
-    // await Queue.add(CancellationMail.key, {
-    //   appointment
-    // });
+    await Queue.add(CancellationMail.key, {
+      appointment
+    });
 
     return res.json(appointment);
   }
